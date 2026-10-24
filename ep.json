@@ -1,0 +1,10 @@
+{
+  "parts": [{
+    "name": "webhook",
+    "hooks": {
+      "loadSettings": "ep_liveblog_webhook/index:loadSettings",
+      "padUpdate": "ep_liveblog_webhook/index:padUpdate",
+      "shutdown": "ep_liveblog_webhook/index:shutdown"
+    }
+  }]
+}

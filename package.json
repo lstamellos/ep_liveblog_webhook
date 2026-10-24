@@ -1,0 +1,10 @@
+{
+  "name": "ep_liveblog_webhook",
+  "version": "0.1.0",
+  "description": "Signed Etherpad padUpdate notifications for WordPress Liveblog",
+  "main": "index.js",
+  "license": "GPL-3.0-only",
+  "engines": { "node": ">=20" },
+  "scripts": { "test": "node --test", "check": "node --check index.js && node --check lib/notifier.js" },
+  "keywords": ["etherpad", "liveblog", "webhook"]
+}
