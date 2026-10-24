@@ -1,0 +1,51 @@
+name: Publish Etherpad plugin release
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/release-request.txt']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: etherpad-plugin-release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify requested version matches package
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="$(tr -d '\r\n ' < .github/release-request.txt)"
+          ver="$(node -p 'require("./package.json").version')"
+          test "$tag" = "v$ver"
+          [[ "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          echo "TAG=$tag" >> "$GITHUB_ENV"
+      - name: Test
+        run: |
+          npm test
+          npm run check
+      - name: Package and release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          filename="$(npm pack --silent)"
+          test -f "$filename"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists; not overwriting."
+            exit 0
+          fi
+          gh release create "$TAG" "$filename" \
+            --target "$GITHUB_SHA" \
+            --title "$TAG" \
+            --notes "Signed, scoped Etherpad padUpdate webhook notifications for WP Etherpad to Liveblog v0.4.0+. Includes CLI install guidance and automated Node.js tests."
