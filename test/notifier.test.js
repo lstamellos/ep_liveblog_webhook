@@ -6,8 +6,8 @@ const {Notifier, makeSignedRequest} = require('../lib/notifier');
 
 const secret = 'abcdef0123456789abcdef0123456789abcdef0123456789';
 const base = {
-  endpoint: 'https://omniatv.com/wp-json/wpelb/v1/notify',
-  origin: 'https://pad.omniatv.com', secret,
+  endpoint: 'https://news.example.com/wp-json/wpelb/v1/notify',
+  origin: 'https://pad.example.org', secret,
 };
 
 test('HMAC contract matches WordPress receiver', () => {
