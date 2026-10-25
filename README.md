@@ -23,6 +23,10 @@ publicly readable Etherpad TXT and native revision exports **without any Etherpa
 API credentials**. The WordPress post mapping and its existing single-flight
 publication lock select the target Liveblog.
 
+The WordPress plugin is independent of any specific publisher, domain or hosting
+provider. Its [setup guide](https://github.com/lstamellos/WP-etherpad-to-liveblog#install-and-connect-a-pad)
+explains how to connect pads from external Etherpad installations.
+
 An independent system cron job is needed for guaranteed catch-up: notifications
 are retried on transient errors, but are not persisted across Etherpad restarts.
 Third-party Etherpad instances work without this plugin through the same cron.
@@ -63,8 +67,8 @@ Add this property to your existing `settings.json` (do **not** replace the file)
 {
   "ep_liveblog_webhook": {
     "enabled": true,
-    "origin": "https://pad.omniatv.com",
-    "endpoint": "https://omniatv.com/wp-json/wpelb/v1/notify",
+    "origin": "https://pad.example.org",
+    "endpoint": "https://news.example.com/wp-json/wpelb/v1/notify",
     "padIds": ["YOUR_TEST_PAD_ID"]
   }
 }
@@ -76,14 +80,20 @@ to GitHub. A `secret` setting is supported if environment injection is unavailab
 and the configuration file is adequately protected. For a group of purpose-built
 pads, use `"padPrefix": "liveblog-"` instead of `padIds`.
 
+Replace **both** example domains with the actual public HTTPS origins of your
+Etherpad and WordPress installations. The configured `origin` must match the
+pad's connection record in WordPress; the `endpoint` must be an HTTPS URL of
+the WordPress site that runs WP Etherpad to Liveblog.
+
 The WordPress endpoint uses HMAC, so incoming machine requests do not require a
 WordPress user session. Valid signatures are restricted to a five-minute window.
 Server clocks should be synchronized via NTP.
 
-If Cloudflare challenges the POST, create a narrowly scoped WAF exception on
-**omniatv.com** for the Etherpad server egress IP, HTTP method `POST`, and exact
-path `/wp-json/wpelb/v1/notify`. Keep other security mechanisms enabled. This is
-a **different** Cloudflare rule from the outbound WordPress → Etherpad export rule.
+If a firewall or WAF challenges the POST, create a narrowly scoped exception on
+**your WordPress hostname** for the Etherpad server egress IP, HTTP method `POST`,
+and exact path `/wp-json/wpelb/v1/notify`. Keep other security mechanisms enabled.
+This is different from any rule allowing your WordPress server to read the
+public Etherpad export routes.
 
 ## Independent recovery cron (WordPress server)
 
